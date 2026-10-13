@@ -1,0 +1,137 @@
+import { readFile, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { PRODUCT_IDENTITY } from "../dist/identity.js";
+
+import { exec, json, run } from "./lib/verify-package-core.mjs";
+
+/** Install the packed CLI globally with and without optional dependencies and verify PTY degradation. */
+export async function verifyPackageInstall({
+  tarball,
+  prefix,
+  workspace,
+  environment,
+}) {
+  await exec(
+    "npm",
+    [
+      "install",
+      "--global",
+      "--ignore-scripts",
+      "--omit=dev",
+      "--install-strategy=nested",
+      "--prefix",
+      prefix,
+      tarball,
+    ],
+    { env: environment },
+  );
+  const cli = join(prefix, "bin", PRODUCT_IDENTITY.cliBinary);
+  const packageRoot = join(
+    prefix,
+    "lib",
+    "node_modules",
+    PRODUCT_IDENTITY.packageName,
+  );
+  const manifest = json(
+    await readFile(join(packageRoot, "package.json"), "utf8"),
+  );
+  const packageEntrypointCli = join(
+    packageRoot,
+    manifest.bin[PRODUCT_IDENTITY.cliBinary],
+  );
+  for (const command of [cli, packageEntrypointCli])
+    if (!(await run(command, ["--help"], environment)).includes("setup"))
+      throw new Error(
+        `packaged ${PRODUCT_IDENTITY.cliBinary} entry point did not expose setup`,
+      );
+  const processCaptureCapability = await probeCaptureCapability(
+    packageRoot,
+    environment,
+  );
+  if (processCaptureCapability.available !== true)
+    throw new Error(
+      `packaged PTY backend failed without lifecycle scripts: ${JSON.stringify(processCaptureCapability)}`,
+    );
+  const noOptionalPrefix = join(workspace, "prefix-no-optional");
+  await exec(
+    "npm",
+    [
+      "install",
+      "--global",
+      "--ignore-scripts",
+      "--omit=optional",
+      "--prefix",
+      noOptionalPrefix,
+      tarball,
+    ],
+    { env: environment },
+  );
+  const noOptionalCli = join(
+    noOptionalPrefix,
+    "bin",
+    PRODUCT_IDENTITY.cliBinary,
+  );
+  const noOptionalPackageRoot = join(
+    noOptionalPrefix,
+    "lib",
+    "node_modules",
+    PRODUCT_IDENTITY.packageName,
+  );
+  await rm(
+    join(
+      noOptionalPackageRoot,
+      "node_modules/@lydell",
+      `node-pty-${process.platform}-${process.arch}`,
+    ),
+    { recursive: true, force: true },
+  );
+  const noOptionalCapability = await probeCaptureCapability(
+    noOptionalPackageRoot,
+    environment,
+  );
+  if (
+    !(await run(noOptionalCli, ["--help"], environment)).includes("setup") ||
+    noOptionalCapability.available !== false
+  )
+    throw new Error(
+      `packaged CLI did not degrade without the optional PTY binary: ${JSON.stringify(noOptionalCapability)}`,
+    );
+  await verifyInstalledPackageCanRepack(prefix, environment);
+  return { cli, packageEntrypointCli };
+}
+
+const probeCaptureCapability = async (packageRoot, environment) => {
+  const capabilityUrl = pathToFileURL(
+    join(packageRoot, "dist/process/capture/ProcessCaptureCapability.js"),
+  ).href;
+  return json(
+    (
+      await exec(
+        process.execPath,
+        [
+          "--input-type=module",
+          "--eval",
+          `const { probeProcessCaptureCapability } = await import(${JSON.stringify(capabilityUrl)}); process.stdout.write(JSON.stringify(await probeProcessCaptureCapability()));`,
+        ],
+        { env: environment },
+      )
+    ).stdout,
+  );
+};
+
+const verifyInstalledPackageCanRepack = async (prefix, environment) => {
+  const installedPackageRoot = join(
+    prefix,
+    "lib",
+    "node_modules",
+    PRODUCT_IDENTITY.packageName,
+  );
+  const repackedTarball = (
+    await exec("npm", ["pack", "--silent"], {
+      cwd: installedPackageRoot,
+      env: environment,
+    })
+  ).stdout.trim();
+  await rm(join(installedPackageRoot, repackedTarball), { force: true });
+};

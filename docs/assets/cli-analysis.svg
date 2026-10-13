@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850">
+<rect width="1600" height="850" rx="22" fill="#101827"/>
+<path d="M22 0h1556a22 22 0 0 1 22 22v48H0V22A22 22 0 0 1 22 0" fill="#1f2937"/>
+<circle cx="32" cy="35" r="9" fill="#f87171"/>
+<circle cx="62" cy="35" r="9" fill="#fbbf24"/>
+<circle cx="92" cy="35" r="9" fill="#34d399"/>
+<text x="800" y="44" text-anchor="middle" fill="#cbd5e1" font-size="22" font-family="Arial Unicode MS, sans-serif">ChaiChai · Electron 静态分析结果摘录</text>
+<text x="40" y="116" fill="#a5b4fc" font-size="26" font-family="Menlo, monospace">$ chaichai analyze-javascript-application \</text>
+<text x="40" y="158" fill="#a5b4fc" font-size="26" font-family="Menlo, monospace">    tests/conformance/readiness/electron --artifact-format directory --json</text>
+<text x="40" y="200" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace"></text>
+<text x="40" y="242" fill="#e2e8f0" font-size="26" font-family="Menlo, monospace">statistics:</text>
+<text x="40" y="284" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  relevant_files: 6</text>
+<text x="40" y="326" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  parsed_javascript_files: 4</text>
+<text x="40" y="368" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  findings: 22</text>
+<text x="40" y="410" fill="#86efac" font-size="26" font-family="Menlo, monospace">  parse_failures: 0</text>
+<text x="40" y="452" fill="#e2e8f0" font-size="26" font-family="Menlo, monospace">electron:</text>
+<text x="40" y="494" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  context_bridge_apis: 1</text>
+<text x="40" y="536" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  exposed_api_members: 2</text>
+<text x="40" y="578" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace">  ipc.literal_channels: 2</text>
+<text x="40" y="620" fill="#5eead4" font-size="26" font-family="Menlo, monospace">  channels: deep-link, readiness:echo</text>
+<text x="40" y="662" fill="#fcd34d" font-size="26" font-family="Menlo, monospace">coverage: partial</text>
+<text x="40" y="704" fill="#cbd5e1" font-size="26" font-family="Menlo, monospace"></text>
+<text x="40" y="746" fill="#86efac" font-size="26" font-family="Menlo, monospace">MCP health: true | tools: 189 | prompts: 6</text>
+</svg>
