@@ -1,4 +1,4 @@
-![拆拆 ChaiChai · 拆开软件，看懂原理](https://raw.githubusercontent.com/17lijunyi/chaichai/main/docs/assets/cover.png)
+![拆拆 ChaiChai · 拆开软件，看懂原理](https://raw.githubusercontent.com/17lijunyi/chaichai/main/docs/assets/cover.png?v=63fe22a17871)
 
 # 拆拆 ChaiChai
 
